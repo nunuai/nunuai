@@ -20,11 +20,11 @@ import { useMenu } from './useMenu';
 const PanelContent = memo<{ closePopover: () => void }>(({ closePopover }) => {
   const router = useRouter();
   const isLoginWithAuth = useUserStore(authSelectors.isLoginWithAuth);
-  const [openSignIn, signOut] = useUserStore((s) => [s.openLogin, s.logout]);
+  const [signOut] = useUserStore((s) => [s.logout]);
   const { mainItems, logoutItems } = useMenu();
 
   const handleSignIn = () => {
-    openSignIn();
+    router.replace('/next-auth/signin');
     closePopover();
   };
 
