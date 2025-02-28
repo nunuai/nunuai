@@ -9,6 +9,8 @@ import { DB_FAIL_INIT_HINT, PGVECTOR_HINT } from './errorHint';
 // Read the `.env` file if it exists, or a file specified by the
 // dotenv_config_path parameter that's passed to Node.js
 dotenv.config();
+// 尝试加载 .env.local 文件
+dotenv.config({ path: '.env.local' });
 
 const migrationsFolder = join(__dirname, '../../src/database/migrations');
 
