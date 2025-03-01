@@ -1,78 +1,91 @@
 'use client';
 
-import { LobeChat } from '@lobehub/ui/brand';
-import { Button, Col, Flex, Row, Skeleton, Typography } from 'antd';
+import { Button, Flex, Skeleton, Typography } from 'antd';
 import { createStyles } from 'antd-style';
 import { AuthError } from 'next-auth';
 import { signIn } from 'next-auth/react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { memo } from 'react';
-import { useTranslation } from 'react-i18next';
 
-import BrandWatermark from '@/components/BrandWatermark';
 import AuthIcons from '@/components/NextAuth/AuthIcons';
-import { DOCUMENTS_REFER_URL, PRIVACY_URL, TERMS_URL } from '@/const/url';
 import { useUserStore } from '@/store/user';
+
+import SignInInput from './SignInInput';
 
 const { Title, Paragraph } = Typography;
 
 const useStyles = createStyles(({ css, token }) => ({
-  button: css`
-    text-transform: capitalize;
-  `,
   container: css`
     min-width: 360px;
-    border: 1px solid ${token.colorBorder};
+    max-width: 400px;
+    border: 1px solid ${token.colorBorderSecondary};
     border-radius: ${token.borderRadiusLG}px;
+
     background: ${token.colorBgContainer};
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 5%);
   `,
   contentCard: css`
-    padding-block: 2.5rem;
+    padding-block: 2rem;
     padding-inline: 2rem;
   `,
   description: css`
     margin: 0;
+    margin-block-end: 24px;
     color: ${token.colorTextSecondary};
   `,
   footer: css`
     padding: 1rem;
-    border-block-start: 1px solid ${token.colorBorder};
+    border-block-start: 1px solid ${token.colorBorderSecondary};
     border-radius: 0 0 8px 8px;
 
     color: ${token.colorTextDescription};
+    text-align: center;
 
     background: ${token.colorBgElevated};
+  `,
+  iconButton: css`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-block: 0;
+    margin-inline: 8px;
+    padding-block: 5px 0;
+    padding-inline: 0;
+    border-radius: 50%;
+  `,
+  iconContainer: css`
+    display: flex;
+    justify-content: center;
+    margin-block: 16px 16px;
+  `,
+  logo: css`
+    margin-block-end: 12px;
+    border-radius: 50%;
+  `,
+  registerLink: css`
+    margin-inline-start: 8px;
+    color: ${token.colorPrimary};
   `,
   text: css`
     text-align: center;
   `,
   title: css`
     margin: 0;
+    margin-block-end: 8px;
+
+    font-size: 24px;
+    font-weight: 600;
     color: ${token.colorTextHeading};
   `,
 }));
 
-const BtnListLoading = memo(() => {
-  return (
-    <Flex gap={'small'} vertical>
-      <Skeleton.Button active style={{ minWidth: 300 }} />
-      <Skeleton.Button active style={{ minWidth: 300 }} />
-    </Flex>
-  );
-});
-
-/**
- * Follow the implementation from AuthJS official documentation,
- * but using client components.
- * ref: https://authjs.dev/guides/pages/signin
- */
 export default memo(() => {
   const { styles } = useStyles();
-  const { t } = useTranslation('clerk');
   const router = useRouter();
-
   const oAuthSSOProviders = useUserStore((s) => s.oAuthSSOProviders);
-
   const searchParams = useSearchParams();
 
   // Redirect back to the page url
@@ -82,25 +95,12 @@ export default memo(() => {
     try {
       await signIn(provider, { redirectTo: callbackUrl });
     } catch (error) {
-      // Signin can fail for a number of reasons, such as the user
-      // not existing, or the user not having the correct role.
-      // In some cases, you may want to redirect to a custom error
       if (error instanceof AuthError) {
         return router.push(`/next-auth/?error=${error.type}`);
       }
-
-      // Otherwise if a redirects happens Next.js can handle it
-      // so you can just re-thrown the error and let Next.js handle it.
-      // Docs: https://nextjs.org/docs/app/api-reference/functions/redirect#server-component
       throw error;
     }
   };
-
-  const footerBtns = [
-    { href: DOCUMENTS_REFER_URL, id: 0, label: t('footerPageLink__help') },
-    { href: PRIVACY_URL, id: 1, label: t('footerPageLink__privacy') },
-    { href: TERMS_URL, id: 2, label: t('footerPageLink__terms') },
-  ];
 
   return (
     <div className={styles.container}>
@@ -109,51 +109,47 @@ export default memo(() => {
         <Flex gap="large" vertical>
           {/* Header */}
           <div className={styles.text}>
+            <Image
+              alt="logo"
+              className={styles.logo}
+              height={50}
+              src="/icons/icon-512x512.maskable.png"
+              width={50}
+            />
             <Title className={styles.title} level={4}>
-              <div>
-                <LobeChat size={48} />
-              </div>
-              {t('signIn.start.title', { applicationName: 'nunuai' })}
+              登录到 nunuai
             </Title>
-            <Paragraph className={styles.description}>{t('signIn.start.subtitle')}</Paragraph>
+            <Paragraph className={styles.description}>欢迎回来！请登录以继续</Paragraph>
           </div>
           {/* Content */}
           <Flex gap="small" vertical>
+            <SignInInput callbackUrl={callbackUrl} />
+
             {oAuthSSOProviders ? (
-              oAuthSSOProviders.map((provider) => (
-                <Button
-                  className={styles.button}
-                  icon={AuthIcons(provider, 16)}
-                  key={provider}
-                  onClick={() => handleSignIn(provider)}
-                >
-                  {provider}
-                </Button>
-              ))
+              <div className={styles.iconContainer}>
+                {oAuthSSOProviders.map((provider) => (
+                  <Button
+                    className={styles.iconButton}
+                    icon={AuthIcons(provider, 24)}
+                    key={provider}
+                    onClick={() => handleSignIn(provider)}
+                  />
+                ))}
+              </div>
             ) : (
-              <BtnListLoading />
+              <div className={styles.iconContainer}>
+                <Skeleton.Avatar active size={44} style={{ margin: '0 8px' }} />
+                <Skeleton.Avatar active size={44} style={{ margin: '0 8px' }} />
+              </div>
             )}
           </Flex>
         </Flex>
       </div>
       <div className={styles.footer}>
-        {/* Footer */}
-        <Row>
-          <Col span={12}>
-            <Flex justify="left" style={{ height: '100%' }}>
-              <BrandWatermark />
-            </Flex>
-          </Col>
-          <Col offset={4} span={8}>
-            <Flex justify="right">
-              {footerBtns.map((btn) => (
-                <Button key={btn.id} onClick={() => router.push(btn.href)} size="small" type="text">
-                  {btn.label}
-                </Button>
-              ))}
-            </Flex>
-          </Col>
-        </Row>
+        登录即同意 nunuai
+        <Link className={styles.registerLink} href="/register">
+          《隐私政策》
+        </Link>
       </div>
     </div>
   );

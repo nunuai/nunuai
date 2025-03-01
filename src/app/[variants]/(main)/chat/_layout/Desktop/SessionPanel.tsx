@@ -70,6 +70,7 @@ const SessionPanel = memo<PropsWithChildren>(({ children }) => {
       onSizeChange={handleSizeChange}
       placement="left"
       size={{ height: '100%', width: sessionsWidth }}
+      suppressHydrationWarning
     >
       <DraggablePanelContainer style={{ flex: 'none', height: '100%', minWidth: FOLDER_WIDTH }}>
         {children}
