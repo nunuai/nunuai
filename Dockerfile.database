@@ -49,13 +49,13 @@ ARG NEXT_PUBLIC_UMAMI_WEBSITE_ID
 
 ENV NEXT_PUBLIC_BASE_PATH="${NEXT_PUBLIC_BASE_PATH}"
 
-ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_Z29sZGVuLWZpcmVmbHktMzQuY2xlcmsuYWNjb3VudHMuZGV2JA" \
-    CLERK_SECRET_KEY="your_clerk_secret_key_here" \
-    CLERK_WEBHOOK_SECRET="your_clerk_webhook_secret_here"
+# ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_Z29sZGVuLWZpcmVmbHktMzQuY2xlcmsuYWNjb3VudHMuZGV2JA" \
+#     CLERK_SECRET_KEY="your_clerk_secret_key_here" \
+#     CLERK_WEBHOOK_SECRET="your_clerk_webhook_secret_here"
 
 ENV NEXT_PUBLIC_SERVICE_MODE="${NEXT_PUBLIC_SERVICE_MODE:-server}" \
     NEXT_PUBLIC_ENABLE_NEXT_AUTH="${NEXT_PUBLIC_ENABLE_NEXT_AUTH:-1}" \
-    APP_URL="https://nunuai.com" \
+    APP_URL="https://localhost:3010" \
     DATABASE_DRIVER="node" \
     DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres" \
     KEY_VAULTS_SECRET="use-for-build"
@@ -180,6 +180,8 @@ ENV NEXT_AUTH_SECRET="" \
     NEXT_AUTH_SSO_PROVIDERS="" \
     NEXTAUTH_URL=""
 
+ENV AUTH_GITHUB_ID='github_client_id' \
+    AUTH_GITHUB_SECRET='github_client_secret'
 # S3
 ENV NEXT_PUBLIC_S3_DOMAIN="" \
     S3_PUBLIC_DOMAIN="" \
