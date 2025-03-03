@@ -169,6 +169,10 @@ export const getAuthConfig = () => {
       GITHUB_CLIENT_ID: z.string().optional(),
       GITHUB_CLIENT_SECRET: z.string().optional(),
 
+      // 阿里云短信
+      SMS_CLIENT_ID: z.string().optional(),
+      SMS_CLIENT_SECRET: z.string().optional(),
+
       // Azure AD
       AZURE_AD_CLIENT_ID: z.string().optional(),
       AZURE_AD_CLIENT_SECRET: z.string().optional(),
@@ -230,6 +234,10 @@ export const getAuthConfig = () => {
       // Github
       GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
       GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+
+      // 阿里云短信
+      SMS_CLIENT_ID: process.env.ALIBABA_CLOUD_ACCESS_KEY_ID,
+      SMS_CLIENT_SECRET: process.env.ALIBABA_CLOUD_ACCESS_KEY_SECRET,
 
       // Azure AD
       AZURE_AD_CLIENT_ID: process.env.AZURE_AD_CLIENT_ID,

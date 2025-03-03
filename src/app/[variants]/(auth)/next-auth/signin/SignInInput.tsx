@@ -9,6 +9,27 @@ import React, { KeyboardEvent, useEffect, useState } from 'react';
 const EMAIL_REGEX = /^[\w%+.-]+@[\d.A-Za-z-]+\.[A-Za-z]{2,}$/;
 const PHONE_REGEX = /^1[3-9]\d{9}$/;
 
+// 发送短信验证码的函数
+const sendSmsVerificationCode = async (
+  phoneNumber: string,
+): Promise<{ code?: string; message: string; success: boolean }> => {
+  try {
+    const response = await fetch('/api/auth/sms', {
+      body: JSON.stringify({ phoneNumber }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('发送验证码失败:', error);
+    return { message: '发送验证码失败，请稍后再试', success: false };
+  }
+};
+
 const useStyles = createStyles(({ css, token }) => ({
   buttonContainer: css`
     margin-block-start: 20px;
@@ -246,13 +267,23 @@ export default function SignInInput({ callbackUrl }: SignInInputProps) {
   };
 
   // 发送验证码
-  const sendVerificationCode = (type: 'email' | 'phone') => {
+  const sendVerificationCode = async (type: 'email' | 'phone') => {
     if (type === 'email') {
       console.log('发送邮箱验证码到:', email);
+      // 实际项目中应该调用邮箱验证码 API
     } else {
-      console.log('发送手机验证码到:', phone);
+      if (!validateInput(phone, 'phone')) return;
+
+      const result = await sendSmsVerificationCode(phone);
+
+      if (result.success) {
+        // 成功发送验证码，显示提示信息
+        console.log('验证码已发送到手机');
+      } else {
+        // 显示错误信息
+        setPhoneError(result.message);
+      }
     }
-    // 实际项目中应该调用API发送验证码
   };
 
   // 重新获取验证码
@@ -294,7 +325,13 @@ export default function SignInInput({ callbackUrl }: SignInInputProps) {
         // 如果已经显示验证码输入框，则执行登录
         setIsLoggingIn(true);
         if (phone && phoneVerificationCode) {
-          signIn('credentials', { code: phoneVerificationCode, phone, redirectTo: callbackUrl });
+          signIn('sms', { code: phoneVerificationCode, phone, redirectTo: callbackUrl })
+            .then((result) => {
+              console.log('===111===登录成功', result);
+            })
+            .catch((error) => {
+              console.log('===111===登录失败', error);
+            });
         }
       } else {
         // 显示手机验证码输入框并发送验证码

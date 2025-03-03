@@ -127,14 +127,19 @@ export default memo(() => {
 
             {oAuthSSOProviders ? (
               <div className={styles.iconContainer}>
-                {oAuthSSOProviders.map((provider) => (
-                  <Button
-                    className={styles.iconButton}
-                    icon={AuthIcons(provider, 24)}
-                    key={provider}
-                    onClick={() => handleSignIn(provider)}
-                  />
-                ))}
+                {oAuthSSOProviders.map((provider) => {
+                  if (provider !== 'sms' && provider !== 'email') {
+                    return (
+                      <Button
+                        className={styles.iconButton}
+                        icon={AuthIcons(provider, 24)}
+                        key={provider}
+                        onClick={() => handleSignIn(provider)}
+                      />
+                    );
+                  }
+                  return null;
+                })}
               </div>
             ) : (
               <div className={styles.iconContainer}>
