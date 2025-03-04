@@ -112,3 +112,49 @@ export const verificationCodeRedis = {
     return storedCode === code;
   },
 };
+
+/**
+ * 邮箱验证码相关的 Redis 操作
+ */
+export const emailVerificationCodeRedis = {
+  /**
+   * 删除验证码
+   * @param email 邮箱地址
+   */
+  async deleteCode(email: string): Promise<void> {
+    const key = `email:${email}`;
+    await redis.del(key);
+  },
+
+  /**
+   * 获取验证码
+   * @param email 邮箱地址
+   * @returns 验证码，如果不存在或已过期则返回 null
+   */
+  async getCode(email: string): Promise<string | null> {
+    const key = `email:${email}`;
+    return redis.get(key);
+  },
+
+  /**
+   * 存储验证码
+   * @param email 邮箱地址
+   * @param code 验证码
+   * @param expireTime 过期时间（秒）
+   */
+  async storeCode(email: string, code: string, expireTime: number = 300): Promise<void> {
+    const key = `email:${email}`;
+    await redis.set(key, code, 'EX', expireTime);
+  },
+
+  /**
+   * 验证验证码
+   * @param email 邮箱地址
+   * @param code 验证码
+   * @returns 是否有效
+   */
+  async verifyCode(email: string, code: string): Promise<boolean> {
+    const storedCode = await this.getCode(email);
+    return storedCode === code;
+  },
+};

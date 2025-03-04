@@ -9,6 +9,7 @@ import Github from './github';
 import Logto from './logto';
 import MicrosoftEntraID from './microsoft-entra-id';
 import Sms from './sms';
+import Email from './email';
 import WeChat from './wechat';
 import Zitadel from './zitadel';
 
@@ -26,4 +27,5 @@ export const ssoProviders = [
   MicrosoftEntraID,
   WeChat,
   Sms,
+  Email,
 ];

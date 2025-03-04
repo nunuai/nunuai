@@ -107,20 +107,3 @@ export async function getVerificationCode(options: SendVerificationCodeOptions):
     };
   }
 }
-
-/**
- * Example usage:
- *
- * // Send a verification code
- * const result = await sendVerificationCode({
- *   phoneNumber: '1234567890',
- *   signName: 'YourSignName',
- *   templateCode: 'SMS_XXXXXXXXX',
- * });
- *
- * if (result.success) {
- *   console.log(`Verification code ${result.code} sent successfully`);
- * } else {
- *   console.error(`Failed to send verification code: ${result.message}`);
- * }
- */

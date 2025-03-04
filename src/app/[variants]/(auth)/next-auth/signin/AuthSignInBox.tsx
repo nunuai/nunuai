@@ -7,12 +7,14 @@ import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 
 import AuthIcons from '@/components/NextAuth/AuthIcons';
 import { useUserStore } from '@/store/user';
 
-import SignInInput from './SignInInput';
+import EmailSignIn from './EmailSignIn';
+import PhoneSignIn from './PhoneSignIn';
+import { useVerificationStyles } from './VerificationComponents';
 
 const { Title, Paragraph } = Typography;
 
@@ -84,9 +86,11 @@ const useStyles = createStyles(({ css, token }) => ({
 
 export default memo(() => {
   const { styles } = useStyles();
+  const verificationStyles = useVerificationStyles();
   const router = useRouter();
   const oAuthSSOProviders = useUserStore((s) => s.oAuthSSOProviders);
   const searchParams = useSearchParams();
+  const [loginType, setLoginType] = useState('email'); // 'email' 或 'phone'
 
   // Redirect back to the page url
   const callbackUrl = searchParams.get('callbackUrl') ?? '';
@@ -123,7 +127,36 @@ export default memo(() => {
           </div>
           {/* Content */}
           <Flex gap="small" vertical>
-            <SignInInput callbackUrl={callbackUrl} />
+            <div>
+              <div className={verificationStyles.styles.loginTypeContainer}>
+                <div
+                  className={`${verificationStyles.styles.loginTypeOption} ${
+                    loginType === 'email' ? verificationStyles.styles.loginTypeActive : ''
+                  }`}
+                  onClick={() => {
+                    setLoginType('email');
+                  }}
+                >
+                  邮箱登录
+                </div>
+                <div
+                  className={`${verificationStyles.styles.loginTypeOption} ${
+                    loginType === 'phone' ? verificationStyles.styles.loginTypeActive : ''
+                  }`}
+                  onClick={() => {
+                    setLoginType('phone');
+                  }}
+                >
+                  手机登录
+                </div>
+              </div>
+
+              {loginType === 'email' ? (
+                <EmailSignIn callbackUrl={callbackUrl} />
+              ) : (
+                <PhoneSignIn callbackUrl={callbackUrl} />
+              )}
+            </div>
 
             {oAuthSSOProviders ? (
               <div className={styles.iconContainer}>
