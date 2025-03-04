@@ -11,8 +11,6 @@ import { CommonProviderConfig } from './sso.config';
  */
 async function verifySmsCode(phone: string, code: string): Promise<boolean> {
   try {
-    console.log('===verifySmsCode===', { code, phone });
-
     // 在服务器端，我们需要使用绝对 URL
     // 从环境变量获取基础 URL
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3010';
@@ -22,13 +20,9 @@ async function verifySmsCode(phone: string, code: string): Promise<boolean> {
     apiUrl.searchParams.append('phoneNumber', phone);
     apiUrl.searchParams.append('code', code);
 
-    console.log('===verifySmsCode URL===', apiUrl.toString());
-
     // 使用完整的 URL 进行请求
     const response = await fetch(apiUrl.toString());
     const data = await response.json();
-
-    console.log('===verifySmsCode response===', data);
 
     return data.success;
   } catch (error) {
@@ -53,7 +47,6 @@ async function getOrCreateUser(phone: string) {
       body: JSON.stringify({
         id: phone,
         phone,
-        username: `user_${phone.slice(-4)}`,
       }),
       headers: {
         'Content-Type': 'application/json',
@@ -66,7 +59,6 @@ async function getOrCreateUser(phone: string) {
     }
 
     const user = await response.json();
-    console.log('===111===用户信息:', user);
     return user;
   } catch (error) {
     console.error('获取或创建用户失败:', error);
@@ -80,7 +72,6 @@ const provider = {
     ...CommonProviderConfig,
 
     async authorize(credentials) {
-      console.log('===111===authorize', credentials);
       const { phone, code } = credentials as { code?: string; phone?: string };
 
       if (!phone || !code) {
@@ -98,7 +89,6 @@ const provider = {
       if (!user) {
         throw new Error('Failed to get or create user');
       }
-      console.log('===111===登录成功，用户信息:', user);
 
       // 返回用户信息
       return {

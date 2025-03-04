@@ -40,8 +40,8 @@ function createEmailClient(): Dm20151123 {
  */
 interface SendEmailVerificationCodeOptions {
   // 收件人邮箱
-  accountName?: string; 
-  code?: string; 
+  accountName?: string;
+  code?: string;
   // 可选: 如果不提供，将生成随机验证码
   email: string; // 发件人账号，默认使用环境变量中的配置
   subject?: string; // 邮件主题，默认为"【nunuai】您的验证码"
@@ -157,7 +157,8 @@ export async function getEmailVerificationCode(options: SendEmailVerificationCod
 }> {
   const { email } = options;
   const code = options.code || generateVerificationCode();
-  const accountName = options.accountName || process.env.ALIBABA_EMAIL_ACCOUNT || 'nunu01@nunuai.com';
+  const accountName =
+    options.accountName || process.env.ALIBABA_EMAIL_ACCOUNT || 'nunu01@nunuai.com';
   const subject = options.subject || '🔐【nunuai】您的验证码';
   const tagName = options.tagName || 'verification';
 
@@ -180,9 +181,9 @@ export async function getEmailVerificationCode(options: SendEmailVerificationCod
 
     return {
       code,
-      message: response.body?.message,
+      message: 'Email sent successfully',
       requestId: response.body?.requestId,
-      success: response.body?.code === 'OK',
+      success: response.statusCode === 200,
     };
   } catch (error: unknown) {
     const emailError = error as AlibabaEmailError;
@@ -205,17 +206,20 @@ export async function getEmailVerificationCode(options: SendEmailVerificationCod
  * @param expireTime 过期时间（秒），默认300秒
  * @returns 发送结果
  */
-export async function sendEmailVerificationCode(email: string, expireTime: number = 300): Promise<{
+export async function sendEmailVerificationCode(
+  email: string,
+  expireTime: number = 300,
+): Promise<{
   message?: string;
   success: boolean;
 }> {
   try {
     // 导入Redis工具
     const { emailVerificationCodeRedis } = await import('./redis');
-    
+
     // 生成并发送验证码
     const result = await getEmailVerificationCode({ email });
-    
+
     if (result.success) {
       // 将验证码存储到Redis
       await emailVerificationCodeRedis.storeCode(email, result.code, expireTime);
@@ -236,4 +240,4 @@ export async function sendEmailVerificationCode(email: string, expireTime: numbe
       success: false,
     };
   }
-} 
+}

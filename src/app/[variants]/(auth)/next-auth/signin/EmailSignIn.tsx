@@ -6,7 +6,11 @@ import React, { KeyboardEvent, useState } from 'react';
 
 import { authService } from '@/services/auth/auth';
 
-import { VerificationCodeInput, useCountdown, useVerificationStyles } from './VerificationComponents';
+import {
+  VerificationCodeInput,
+  useCountdown,
+  useVerificationStyles,
+} from './VerificationComponents';
 
 // 邮箱的正则表达式
 const EMAIL_REGEX = /^[\w%+.-]+@[\d.A-Za-z-]+\.[A-Za-z]{2,}$/;
@@ -18,7 +22,7 @@ interface EmailSignInProps {
 export default function EmailSignIn({ callbackUrl }: EmailSignInProps) {
   const { styles } = useVerificationStyles();
   const [email, setEmail] = useState('');
-  const [, setIsLoggingIn] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // 邮箱验证码状态
   const [showEmailVerificationCode, setShowEmailVerificationCode] = useState(false);
@@ -51,9 +55,9 @@ export default function EmailSignIn({ callbackUrl }: EmailSignInProps) {
   // 发送验证码
   const sendVerificationCode = async () => {
     if (!validateInput(email)) return;
-    
+
     const result = await authService.sendEmailVerificationCode(email);
-    
+
     if (result.success) {
       // 成功发送验证码，显示提示信息
       console.log('验证码已发送到邮箱');
@@ -80,7 +84,13 @@ export default function EmailSignIn({ callbackUrl }: EmailSignInProps) {
       // 如果已经显示验证码输入框，则执行登录
       setIsLoggingIn(true);
       if (email && emailVerificationCode) {
-        signIn('email', { code: emailVerificationCode, email, redirectTo: callbackUrl });
+        signIn('email', { code: emailVerificationCode, email, redirectTo: callbackUrl })
+          .then(() => {
+            setIsLoggingIn(false);
+          })
+          .catch(() => {
+            setIsLoggingIn(false);
+          });
       }
     } else {
       // 显示邮箱验证码输入框并发送验证码
@@ -92,7 +102,7 @@ export default function EmailSignIn({ callbackUrl }: EmailSignInProps) {
 
   // 判断继续按钮是否可用
   const isContinueDisabled = Boolean(
-    !email || emailError || (showEmailVerificationCode && !emailVerificationCode)
+    !email || emailError || (showEmailVerificationCode && !emailVerificationCode),
   );
 
   // 处理回车键事件
@@ -132,10 +142,16 @@ export default function EmailSignIn({ callbackUrl }: EmailSignInProps) {
       />
 
       <div className={styles.buttonContainer}>
-        <Button block disabled={isContinueDisabled} onClick={handleContinue} type={'primary'}>
+        <Button
+          block
+          disabled={isContinueDisabled}
+          loading={isLoggingIn}
+          onClick={handleContinue}
+          type={'primary'}
+        >
           {showEmailVerificationCode ? '登录' : '继续 ›'}
         </Button>
       </div>
     </div>
   );
-} 
+}

@@ -11,11 +11,12 @@ import { UserModel } from '@/database/server/models/user';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { id, phone, username, firstName, lastName, fullName } = body;
+    const { id, phone, email } = body;
 
-    if (!id || !phone) {
+    // 检查必填字段：id 必填，phone 和 email 至少需要一个
+    if (!id || (!phone && !email)) {
       return NextResponse.json(
-        { message: 'Missing required fields', success: false },
+        { message: 'Missing required fields (id and either phone or email)', success: false },
         { status: 400 },
       );
     }
@@ -45,20 +46,21 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      console.log('===111===找到已存在用户:', existingUser);
       return NextResponse.json(existingUser);
     }
 
     // 如果用户不存在，创建新用户
+    const displayName = email ? email.split('@')[0] : `user_${phone?.slice(-4)}`;
+
     const newUser = await UserModel.createUser(serverDB, {
       avatar: null,
-      email: null,
-      firstName: firstName || 'user',
-      fullName: fullName || `user_${phone.slice(-4)}`,
+      email: email || null,
+      firstName: displayName,
+      fullName: displayName,
       id,
-      lastName: lastName || phone.slice(-4),
-      phone,
-      username: username || `user_${phone.slice(-4)}`,
+      lastName: displayName,
+      phone: phone || null,
+      username: displayName,
     });
 
     // 同时创建用户设置
@@ -73,7 +75,6 @@ export async function POST(req: NextRequest) {
       tts: {},
     });
 
-    console.log('===111===创建新用户:', newUser);
     return NextResponse.json(newUser);
   } catch (error) {
     console.error('用户操作失败:', error);

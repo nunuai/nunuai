@@ -11,8 +11,6 @@ import { CommonProviderConfig } from './sso.config';
  */
 async function verifyEmailCode(email: string, code: string): Promise<boolean> {
   try {
-    console.log('===verifyEmailCode===', { code, email });
-
     // 在服务器端，我们需要使用绝对 URL
     // 从环境变量获取基础 URL
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3010';
@@ -22,13 +20,9 @@ async function verifyEmailCode(email: string, code: string): Promise<boolean> {
     apiUrl.searchParams.append('email', email);
     apiUrl.searchParams.append('code', code);
 
-    console.log('===verifyEmailCode URL===', apiUrl.toString());
-
     // 使用完整的 URL 进行请求
     const response = await fetch(apiUrl.toString());
     const data = await response.json();
-
-    console.log('===verifyEmailCode response===', data);
 
     return data.success;
   } catch (error) {
@@ -48,15 +42,11 @@ async function getOrCreateUser(email: string) {
     const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3010';
     const apiUrl = new URL('/api/auth/user', baseUrl);
 
-    // 从邮箱中提取用户名，例如 user@example.com 提取为 user
-    const username = email.split('@')[0];
-
     // 发送请求创建或获取用户
     const response = await fetch(apiUrl, {
       body: JSON.stringify({
         email,
         id: email,
-        username: username || 'email_user',
       }),
       headers: {
         'Content-Type': 'application/json',
@@ -69,7 +59,6 @@ async function getOrCreateUser(email: string) {
     }
 
     const user = await response.json();
-    console.log('===111===用户信息:', user);
     return user;
   } catch (error) {
     console.error('获取或创建用户失败:', error);
@@ -83,7 +72,6 @@ const provider = {
     ...CommonProviderConfig,
 
     async authorize(credentials) {
-      console.log('===111===authorize', credentials);
       const { email, code } = credentials as { code?: string; email?: string };
 
       if (!email || !code) {
@@ -101,7 +89,6 @@ const provider = {
       if (!user) {
         throw new Error('Failed to get or create user');
       }
-      console.log('===111===登录成功，用户信息:', user);
 
       // 返回用户信息
       return {
@@ -117,11 +104,11 @@ const provider = {
     },
     credentials: {
       code: { label: '验证码', type: 'text' },
-      email: { label: '邮箱', type: 'email' },
+      email: { label: '邮箱', type: 'text' },
     },
     id: 'email',
     name: 'email',
   }),
 };
 
-export default provider; 
+export default provider;

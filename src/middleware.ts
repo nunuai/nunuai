@@ -100,13 +100,9 @@ const nextAuthMiddleware = NextAuthEdge.auth((req) => {
   // Just check if session exists
   const session = req.auth;
 
-  console.log('===111===session', session);
-
   // Check if next-auth throws errors
   // refs: https://github.com/lobehub/lobe-chat/pull/1323
   const isLoggedIn = !!session?.expires;
-
-  console.log('===111===isLoggedIn', isLoggedIn);
 
   // Remove & amend OAuth authorized header
   response.headers.delete(OAUTH_AUTHORIZED);

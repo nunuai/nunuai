@@ -6,7 +6,11 @@ import React, { KeyboardEvent, useState } from 'react';
 
 import { authService } from '@/services/auth/auth';
 
-import { VerificationCodeInput, useCountdown, useVerificationStyles } from './VerificationComponents';
+import {
+  VerificationCodeInput,
+  useCountdown,
+  useVerificationStyles,
+} from './VerificationComponents';
 
 // 手机号的正则表达式
 const PHONE_REGEX = /^1[3-9]\d{9}$/;
@@ -18,7 +22,7 @@ interface PhoneSignInProps {
 export default function PhoneSignIn({ callbackUrl }: PhoneSignInProps) {
   const { styles } = useVerificationStyles();
   const [phone, setPhone] = useState('');
-  const [, setIsLoggingIn] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // 手机验证码状态
   const [showPhoneVerificationCode, setShowPhoneVerificationCode] = useState(false);
@@ -81,11 +85,11 @@ export default function PhoneSignIn({ callbackUrl }: PhoneSignInProps) {
       setIsLoggingIn(true);
       if (phone && phoneVerificationCode) {
         signIn('sms', { code: phoneVerificationCode, phone, redirectTo: callbackUrl })
-          .then((result) => {
-            console.log('===111===登录成功', result);
+          .then(() => {
+            setIsLoggingIn(false);
           })
-          .catch((error) => {
-            console.log('===111===登录失败', error);
+          .catch(() => {
+            setIsLoggingIn(false);
           });
       }
     } else {
@@ -98,7 +102,7 @@ export default function PhoneSignIn({ callbackUrl }: PhoneSignInProps) {
 
   // 判断继续按钮是否可用
   const isContinueDisabled = Boolean(
-    !phone || phoneError || (showPhoneVerificationCode && !phoneVerificationCode)
+    !phone || phoneError || (showPhoneVerificationCode && !phoneVerificationCode),
   );
 
   // 处理回车键事件
@@ -139,10 +143,16 @@ export default function PhoneSignIn({ callbackUrl }: PhoneSignInProps) {
       />
 
       <div className={styles.buttonContainer}>
-        <Button block disabled={isContinueDisabled} onClick={handleContinue} type={'primary'}>
+        <Button
+          block
+          disabled={isContinueDisabled}
+          loading={isLoggingIn}
+          onClick={handleContinue}
+          type={'primary'}
+        >
           {showPhoneVerificationCode ? '登录' : '继续 ›'}
         </Button>
       </div>
     </div>
   );
-} 
+}
